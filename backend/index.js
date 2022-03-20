@@ -3,10 +3,7 @@ import express from 'express';
 import cityRoutes from './routes/cityRoutes.js';
 import './conf/database.js';
 import cors from 'cors';
-import fs from 'fs';
-import { parse } from 'csv-parse';
-import csv from 'csvtojson'; // Make sure you have this line in order to call functions from this modules
-import city from './model/city.js';
+import parsingRouter from './routes/parsingRouter.js';
 
 const app = express();
 app.use(express.json());
@@ -25,34 +22,8 @@ app.use(
     })
 );
 
-app.get('/parsing', (req, res) => {
-
-
-    let csvData = [];
-    fs.createReadStream('Tableaud.csv', 'latin1')
-        .pipe(parse({ relax_quotes: true, relax_column_count: true, ltrim: true, rtrim: true, delimiter: ';' }))
-        .on('data', function (csvrow) {
-            // console.log(csvrow);
-            csvData.push(csvrow);
-        })
-        .on('end', function () {
-            csvData.forEach((row) => {
-                const newcity = new city({
-                    commune: row[0],
-                    codepostal: row[1],
-                    scoreGlobal: row[2],
-                    iris: row[3],
-                    accesInterfaceNumerique: row[4],
-                    accesInformation: row[5],
-                    competenceAdministrative: row[6],
-                    competenceNumerique: row[7]
-                });
-                newcity.save();
-            })
-        });
-    res.send();
-});
 app.use('/search', cityRoutes);
+app.use('/parsing', parsingRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`✅ App listening on port ${process.env.PORT}`)
