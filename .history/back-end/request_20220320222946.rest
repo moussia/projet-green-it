@@ -1,0 +1,6 @@
+###
+GET http://localhost:3003/parsing
+
+###
+GET http://localhost:3003/search?city=asnieres sur seine
+
